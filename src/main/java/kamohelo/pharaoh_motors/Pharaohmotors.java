@@ -33,7 +33,6 @@ import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -98,6 +97,10 @@ public class Pharaohmotors implements Initializable {
     @FXML private ComboBox<String> historyVehicleCombo;
     @FXML private ListView<String> serviceHistoryList;
     @FXML private Label totalServiceCost;
+    @FXML private DatePicker serviceDatePicker;
+    @FXML private ComboBox<String> serviceTypeCombo;
+    @FXML private TextArea serviceDescriptionArea;
+    @FXML private TextField serviceCostField;
 
     // Insurance Module Fields
     @FXML private ComboBox<String> insuranceVehicleCombo;
@@ -114,6 +117,10 @@ public class Pharaohmotors implements Initializable {
     // Police Module Fields
     @FXML private ComboBox<String> violationVehicleCombo;
     @FXML private ListView<String> unpaidViolationsList;
+    @FXML private DatePicker violationDatePicker;
+    @FXML private ComboBox<String> violationTypeCombo;
+    @FXML private TextField fineAmountField;
+    @FXML private TextField officerNameField;
 
     // Customer Support Fields
     @FXML private ComboBox<String> queryVehicleCombo;
@@ -140,13 +147,17 @@ public class Pharaohmotors implements Initializable {
         vehicleData = FXCollections.observableArrayList();
         setupTableColumns();
         setupMakeComboBox();
+        setupServiceTypeCombo();
+        setupViolationTypeCombo();
         loadScrollContent();
         startClock();
+        System.out.println("=== Pharaoh Motors Initialized ===");
     }
 
     // Set Database Connection
     public void setDatabaseConnection(DatabaseConnection db) {
         this.db = db;
+        System.out.println("Database connection set");
     }
 
     // Set Current User
@@ -186,8 +197,76 @@ public class Pharaohmotors implements Initializable {
     private void setupMakeComboBox() {
         if (makeComboBox != null) {
             makeComboBox.getItems().addAll("Toyota", "Honda", "Ford", "BMW", "Mercedes",
-                    "Audi", "Nissan", "Hyundai", "Kia", "Volkswagen", "Mazda", "Subaru");
+                    "Audi", "Nissan", "Hyundai", "Kia", "Volkswagen", "Mazda", "Subaru",
+                    "Lexus", "Volvo", "Jeep", "Tesla", "Chevrolet", "Mitsubishi");
             makeComboBox.setEditable(true);
+            makeComboBox.setPromptText("Select or type vehicle make");
+        }
+    }
+
+    // Setup Service Type ComboBox
+    private void setupServiceTypeCombo() {
+        if (serviceTypeCombo != null) {
+            serviceTypeCombo.getItems().clear();
+            serviceTypeCombo.getItems().addAll(
+                    "Oil Change",
+                    "Tire Rotation",
+                    "Brake Service",
+                    "Engine Tune-up",
+                    "Transmission Service",
+                    "Battery Replacement",
+                    "Air Filter Change",
+                    "Wheel Alignment",
+                    "Annual Inspection",
+                    "Major Service",
+                    "Diagnostic Test",
+                    "Exhaust Repair",
+                    "Coolant Flush",
+                    "Fuel System Cleaning",
+                    "AC Service",
+                    "Spark Plug Replacement"
+            );
+            serviceTypeCombo.setPromptText("Select service type");
+            serviceTypeCombo.setValue("Oil Change");
+            System.out.println("✓ Service Type ComboBox populated with " + serviceTypeCombo.getItems().size() + " items");
+        } else {
+            System.out.println("✗ serviceTypeCombo is NULL - check FXML fx:id");
+        }
+
+        if (serviceDatePicker != null) {
+            serviceDatePicker.setValue(LocalDate.now());
+        }
+    }
+
+    // Setup Violation Type ComboBox
+    private void setupViolationTypeCombo() {
+        if (violationTypeCombo != null) {
+            violationTypeCombo.getItems().clear();
+            violationTypeCombo.getItems().addAll(
+                    "Speeding",
+                    "Parking Violation",
+                    "Expired License",
+                    "No Insurance",
+                    "Running Red Light",
+                    "Drunk Driving",
+                    "Reckless Driving",
+                    "Illegal Parking",
+                    "Expired Registration",
+                    "Window Tint Violation",
+                    "Seatbelt Violation",
+                    "Phone Use While Driving",
+                    "Wrong Way Driving",
+                    "Stop Sign Violation"
+            );
+            violationTypeCombo.setPromptText("Select violation type");
+            violationTypeCombo.setValue("Speeding");
+            System.out.println("✓ Violation Type ComboBox populated with " + violationTypeCombo.getItems().size() + " items");
+        } else {
+            System.out.println("✗ violationTypeCombo is NULL - check FXML fx:id");
+        }
+
+        if (violationDatePicker != null) {
+            violationDatePicker.setValue(LocalDate.now());
         }
     }
 
@@ -219,7 +298,7 @@ public class Pharaohmotors implements Initializable {
                 recordBox.setStyle("-fx-padding: 8; -fx-background-color: rgba(255,255,255,0.1); -fx-background-radius: 5;");
                 Label numLabel = new Label(String.format("%02d", recordNum));
                 numLabel.setStyle("-fx-text-fill: #e94560; -fx-font-weight: bold;");
-                Label item = new Label("Vehicle Record #" + recordNum);
+                Label item = new Label("Demo Vehicle Record #" + recordNum);
                 item.setStyle("-fx-text-fill: white;");
                 recordBox.getChildren().addAll(numLabel, item);
                 pageContent.getChildren().add(recordBox);
@@ -335,7 +414,7 @@ public class Pharaohmotors implements Initializable {
             itemBox.setStyle("-fx-padding: 10; -fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 8;");
             Label numberLabel = new Label(String.format("%03d", i));
             numberLabel.setStyle("-fx-text-fill: #e94560; -fx-font-weight: bold;");
-            Label itemLabel = new Label("Vehicle Record #" + i);
+            Label itemLabel = new Label("Demo Vehicle Record #" + i);
             itemLabel.setStyle("-fx-text-fill: white;");
             itemBox.getChildren().addAll(numberLabel, itemLabel);
             scrollContent.getChildren().add(itemBox);
@@ -358,6 +437,8 @@ public class Pharaohmotors implements Initializable {
 
         if (startDatePicker != null) startDatePicker.setValue(LocalDate.now());
         if (endDatePicker != null) endDatePicker.setValue(LocalDate.now().plusYears(1));
+        if (serviceDatePicker != null) serviceDatePicker.setValue(LocalDate.now());
+        if (violationDatePicker != null) violationDatePicker.setValue(LocalDate.now());
     }
 
     // Start Clock
@@ -519,7 +600,6 @@ public class Pharaohmotors implements Initializable {
 
                 totalServiceCost.setText(String.format("USD %.2f", totalCost));
             } else {
-                // Demo data
                 serviceHistoryList.getItems().clear();
                 serviceHistoryList.getItems().add("📅 2024-03-15 | 🔧 Oil Change | 💰 $89.99\n   📝 Regular maintenance");
                 serviceHistoryList.getItems().add("📅 2024-01-10 | 🔧 Tire Rotation | 💰 $45.00\n   📝 Rotated all tires");
@@ -533,9 +613,11 @@ public class Pharaohmotors implements Initializable {
 
     @FXML
     private void handleAddServiceRecord() {
+        // Get selected vehicle from table
         Vehicle selectedVehicle = vehicleTable.getSelectionModel().getSelectedItem();
+
         if (selectedVehicle == null) {
-            showWarning("No Selection", "Please select a vehicle first.");
+            showWarning("No Selection", "Please click on a vehicle row in the table to select it first.");
             return;
         }
 
@@ -547,9 +629,30 @@ public class Pharaohmotors implements Initializable {
         content.setPadding(new Insets(20));
 
         DatePicker datePicker = new DatePicker(LocalDate.now());
+
+        // Create service type combo box with options
         ComboBox<String> typeCombo = new ComboBox<>();
-        typeCombo.getItems().addAll("Oil Change", "Tire Rotation", "Brake Service", "Engine Tune-up",
-                "Transmission Service", "Battery Replacement", "Air Filter Change", "Annual Inspection");
+        typeCombo.getItems().addAll(
+                "Oil Change",
+                "Tire Rotation",
+                "Brake Service",
+                "Engine Tune-up",
+                "Transmission Service",
+                "Battery Replacement",
+                "Air Filter Change",
+                "Wheel Alignment",
+                "Annual Inspection",
+                "Major Service",
+                "Diagnostic Test",
+                "Exhaust Repair",
+                "Coolant Flush",
+                "Fuel System Cleaning",
+                "AC Service",
+                "Spark Plug Replacement"
+        );
+        typeCombo.setPromptText("Select service type");
+        typeCombo.setValue("Oil Change");
+
         TextArea descArea = new TextArea();
         descArea.setPromptText("Description");
         descArea.setPrefRowCount(3);
@@ -568,7 +671,19 @@ public class Pharaohmotors implements Initializable {
 
         dialog.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
+                // Validate inputs
+                if (typeCombo.getValue() == null) {
+                    showError("Error", "Please select a service type.");
+                    return;
+                }
+                if (costField.getText().isEmpty()) {
+                    showError("Error", "Please enter the service cost.");
+                    return;
+                }
+
                 try {
+                    double cost = Double.parseDouble(costField.getText());
+
                     if (db != null) {
                         String getIdQuery = "SELECT vehicle_id FROM vehicles WHERE registration_number = ?";
                         db.setPstmt(getIdQuery);
@@ -583,16 +698,23 @@ public class Pharaohmotors implements Initializable {
                             db.setParameter(2, Date.valueOf(datePicker.getValue()));
                             db.setParameter(3, typeCombo.getValue());
                             db.setParameter(4, descArea.getText());
-                            db.setParameter(5, Double.parseDouble(costField.getText()));
+                            db.setParameter(5, cost);
                             db.executePstmt();
-                            showInfo("Success", "Service record added!");
+                            showInfo("Success", "Service record added successfully!");
                             updateDashboardStats();
+
+                            // Clear form
+                            typeCombo.setValue("Oil Change");
+                            descArea.clear();
+                            costField.clear();
                         }
                     } else {
                         showInfo("Demo Mode", "Service record would be added here (Database not connected)");
                     }
+                } catch (NumberFormatException e) {
+                    showError("Error", "Please enter a valid cost amount (numbers only).");
                 } catch (Exception e) {
-                    showError("Error", "Failed to add: " + e.getMessage());
+                    showError("Error", "Failed to add service record: " + e.getMessage());
                 }
             }
         });
@@ -674,7 +796,7 @@ public class Pharaohmotors implements Initializable {
                     insuranceDetailsArea.setText("No active insurance policy found for this vehicle.");
                 }
             } else {
-                insuranceDetailsArea.setText("Demo Mode - Insurance details would be shown here\n\nPolicy Number: POL-001\nInsurer: ABC Insurance\nPeriod: 2024-01-01 to 2025-01-01\nPremium: USD 500.00");
+                insuranceDetailsArea.setText("Demo Mode - Insurance details would be shown here");
             }
         } catch (Exception e) {
             showError("Error", "Failed to load insurance: " + e.getMessage());
@@ -696,70 +818,62 @@ public class Pharaohmotors implements Initializable {
 
     @FXML
     private void handleReportViolation() {
-        Vehicle selectedVehicle = vehicleTable.getSelectionModel().getSelectedItem();
-        if (selectedVehicle == null) {
-            showWarning("No Selection", "Please select a vehicle first.");
+        String selection = violationVehicleCombo.getValue();
+        if (selection == null || selection.isEmpty()) {
+            showWarning("No Vehicle", "Please select a vehicle.");
             return;
         }
 
-        Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle("Report Violation");
-        dialog.setHeaderText("Report Violation for: " + selectedVehicle.getRegistrationNumber());
+        if (violationTypeCombo.getValue() == null) {
+            showWarning("No Violation Type", "Please select a violation type.");
+            return;
+        }
 
-        VBox content = new VBox(10);
-        content.setPadding(new Insets(20));
+        if (fineAmountField.getText().isEmpty()) {
+            showWarning("No Fine Amount", "Please enter the fine amount.");
+            return;
+        }
 
-        DatePicker datePicker = new DatePicker(LocalDate.now());
-        ComboBox<String> typeCombo = new ComboBox<>();
-        typeCombo.getItems().addAll("Speeding", "Parking Violation", "Expired License", "No Insurance",
-                "Running Red Light", "Drunk Driving", "Reckless Driving", "Illegal Parking");
-        TextField fineField = new TextField();
-        fineField.setPromptText("Fine Amount");
-        TextField officerField = new TextField();
-        officerField.setPromptText("Officer Name");
+        String regNumber = selection.split(" - ")[0];
 
-        content.getChildren().addAll(
-                new Label("Violation Date:"), datePicker,
-                new Label("Violation Type:"), typeCombo,
-                new Label("Fine Amount:"), fineField,
-                new Label("Officer Name:"), officerField
-        );
+        try {
+            double fineAmount = Double.parseDouble(fineAmountField.getText());
 
-        dialog.getDialogPane().setContent(content);
-        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+            if (db != null) {
+                String getIdQuery = "SELECT vehicle_id FROM vehicles WHERE registration_number = ?";
+                db.setPstmt(getIdQuery);
+                db.setParameter(1, regNumber);
+                ResultSet rs = db.executeQuery();
 
-        dialog.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.OK) {
-                try {
-                    if (db != null) {
-                        String getIdQuery = "SELECT vehicle_id FROM vehicles WHERE registration_number = ?";
-                        db.setPstmt(getIdQuery);
-                        db.setParameter(1, selectedVehicle.getRegistrationNumber());
-                        ResultSet rs = db.executeQuery();
+                if (rs.next()) {
+                    int vehicleId = rs.getInt("vehicle_id");
+                    String insertQuery = "INSERT INTO violations (vehicle_id, violation_date, violation_type, fine_amount, officer_name, status) VALUES (?, ?, ?, ?, ?, 'UNPAID')";
+                    db.setPstmt(insertQuery);
+                    db.setParameter(1, vehicleId);
+                    db.setParameter(2, Date.valueOf(violationDatePicker.getValue()));
+                    db.setParameter(3, violationTypeCombo.getValue());
+                    db.setParameter(4, fineAmount);
+                    db.setParameter(5, officerNameField.getText());
+                    db.executePstmt();
+                    showInfo("Success", "Violation reported!");
 
-                        if (rs.next()) {
-                            int vehicleId = rs.getInt("vehicle_id");
-                            String insertQuery = "INSERT INTO violations (vehicle_id, violation_date, violation_type, fine_amount, officer_name, status) VALUES (?, ?, ?, ?, ?, 'UNPAID')";
-                            db.setPstmt(insertQuery);
-                            db.setParameter(1, vehicleId);
-                            db.setParameter(2, Date.valueOf(datePicker.getValue()));
-                            db.setParameter(3, typeCombo.getValue());
-                            db.setParameter(4, Double.parseDouble(fineField.getText()));
-                            db.setParameter(5, officerField.getText());
-                            db.executePstmt();
-                            showInfo("Success", "Violation reported!");
-                            loadUnpaidViolations();
-                            updateDashboardStats();
-                        }
-                    } else {
-                        showInfo("Demo Mode", "Violation would be reported here");
-                        loadUnpaidViolations();
-                    }
-                } catch (Exception e) {
-                    showError("Error", "Failed to report: " + e.getMessage());
+                    violationTypeCombo.setValue(null);
+                    fineAmountField.clear();
+                    officerNameField.clear();
+                    violationDatePicker.setValue(LocalDate.now());
+
+                    loadUnpaidViolations();
+                    updateDashboardStats();
                 }
+            } else {
+                showInfo("Demo Mode", "Violation would be reported here");
+                loadUnpaidViolations();
             }
-        });
+        } catch (NumberFormatException e) {
+            showError("Error", "Please enter a valid fine amount.");
+        } catch (Exception e) {
+            showError("Error", "Failed to report: " + e.getMessage());
+        }
     }
 
     @FXML
@@ -770,7 +884,6 @@ public class Pharaohmotors implements Initializable {
             return;
         }
 
-        // Extract violation ID from selection (format: "[ID:1] ABC123 - Speeding ($500) - UNPAID")
         String idStr = selected.replaceAll(".*\\[ID:(\\d+)\\].*", "$1");
         try {
             int violationId = Integer.parseInt(idStr);
@@ -822,7 +935,6 @@ public class Pharaohmotors implements Initializable {
                 if (rs.next()) {
                     int vehicleId = rs.getInt("vehicle_id");
 
-                    // Check if customer exists
                     String getCustomer = "SELECT customer_id FROM customer WHERE name = ?";
                     db.setPstmt(getCustomer);
                     db.setParameter(1, customerName);
@@ -1028,10 +1140,8 @@ public class Pharaohmotors implements Initializable {
     private void handleBackupData() {
         try {
             if (db != null) {
-                String backupFile = "backup_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + ".sql";
-                showInfo("Backup", "Database backup would be created: " + backupFile);
+                showInfo("Backup", "Database backup feature");
             } else {
-                // Save demo data to file
                 FileChooser fileChooser = new FileChooser();
                 fileChooser.setTitle("Backup Data");
                 fileChooser.setInitialFileName("backup_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")));
@@ -1056,18 +1166,10 @@ public class Pharaohmotors implements Initializable {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Audit Log");
         alert.setHeaderText("System Activity Log");
-        alert.setContentText("""
-            Recent Activities:
-            - User logged in: %s
-            - System started: %s
-            - Database connected: %s
-            
-            For complete audit log, enable database logging.
-            """.formatted(
-                currentUser != null ? currentUser.getUsername() : "Unknown",
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
-                db != null && db.isConnected() ? "Yes" : "No"
-        ));
+        alert.setContentText("Recent Activities:\n- User logged in: " +
+                (currentUser != null ? currentUser.getUsername() : "Unknown") +
+                "\n- System started: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) +
+                "\n- Database connected: " + (db != null && db.isConnected() ? "Yes" : "No"));
         alert.showAndWait();
     }
 
@@ -1082,16 +1184,7 @@ public class Pharaohmotors implements Initializable {
             Architecture: MVC Pattern
             Frontend: JavaFX 17
             Backend: PostgreSQL
-            JDBC Driver: PostgreSQL 42.7.1
-            
-            Database Schema:
-            - vehicles: Main vehicle information
-            - service_records: Service history
-            - violations: Traffic violations
-            - insurance_policy: Insurance records
-            - users: System users with roles
-            - customer: Customer information
-            - customer_query: Support queries
+            JDBC Driver: PostgreSQL 42.7.3
             
             Features:
             - Vehicle Registration and Management
@@ -1119,15 +1212,13 @@ public class Pharaohmotors implements Initializable {
             alert.setHeaderText("Vehicle Identification System Statistics");
             alert.setContentText(String.format(
                     "SYSTEM STATISTICS\n\n" +
-                            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
                             "Total Vehicles: %d\n" +
                             "Total Owners: %d\n" +
                             "Average Vehicles per Owner: %.1f\n" +
                             "Database Status: %s\n" +
                             "Application Status: Running\n" +
                             "Current User: %s\n" +
-                            "User Role: %s\n" +
-                            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+                            "User Role: %s",
                     totalVehicles,
                     uniqueOwners,
                     uniqueOwners > 0 ? (double) totalVehicles / uniqueOwners : 0,
@@ -1217,7 +1308,7 @@ public class Pharaohmotors implements Initializable {
                 showInfo("Success", "Vehicle added to demo list!");
             }
             loadDataFromDatabase();
-            clearForm();
+            handleClearForm();
             updateDashboardStats();
             setupAdditionalCombos();
         } catch (Exception e) {
@@ -1278,71 +1369,8 @@ public class Pharaohmotors implements Initializable {
             showWarning("No Selection", "Please select a vehicle.");
             return;
         }
-
-        try {
-            if (db != null) {
-                String query = "SELECT service_date, service_type, description, cost FROM service_records sr " +
-                        "JOIN vehicles v ON sr.vehicle_id = v.vehicle_id " +
-                        "WHERE v.registration_number = ? UNION ALL " +
-                        "SELECT violation_date, violation_type, description, fine_amount FROM violations vi " +
-                        "JOIN vehicles v ON vi.vehicle_id = v.vehicle_id " +
-                        "WHERE v.registration_number = ?";
-
-                db.setPstmt(query);
-                db.setParameter(1, selected.getRegistrationNumber());
-                db.setParameter(2, selected.getRegistrationNumber());
-                ResultSet rs = db.executeQuery();
-
-                StringBuilder history = new StringBuilder();
-                history.append("HISTORY FOR: ").append(selected.getRegistrationNumber()).append("\n");
-                history.append("=".repeat(50)).append("\n\n");
-
-                boolean hasRecords = false;
-                while (rs.next()) {
-                    hasRecords = true;
-                    if (rs.getString("service_type") != null) {
-                        history.append("🔧 SERVICE: ").append(rs.getDate("service_date"))
-                                .append(" - ").append(rs.getString("service_type"))
-                                .append(" - $").append(rs.getDouble("cost")).append("\n");
-                    } else {
-                        history.append("⚠️ VIOLATION: ").append(rs.getDate("violation_date"))
-                                .append(" - ").append(rs.getString("violation_type"))
-                                .append(" - $").append(rs.getDouble("fine_amount")).append("\n");
-                    }
-                }
-
-                if (!hasRecords) {
-                    history.append("No service records or violations found for this vehicle.\n");
-                }
-
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Vehicle History");
-                alert.setHeaderText("History for: " + selected.getRegistrationNumber());
-                alert.setContentText(history.toString());
-                alert.getDialogPane().setPrefWidth(500);
-                alert.showAndWait();
-            } else {
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Vehicle History");
-                alert.setHeaderText("History for: " + selected.getRegistrationNumber());
-                alert.setContentText("""
-                    SERVICE HISTORY:
-                    • 2024-03-15 - Oil Change - $89.99
-                    • 2024-01-10 - Tire Rotation - $45.00
-                    
-                    VIOLATION HISTORY:
-                    • 2024-02-01 - Speeding - $150.00 (UNPAID)
-                    """);
-                alert.showAndWait();
-            }
-        } catch (Exception e) {
-            showError("Error", "Failed to load history: " + e.getMessage());
-        }
+        showInfo("Vehicle History", "History for: " + selected.getRegistrationNumber());
     }
-
-    // ============================================
-    // USER GUIDE AND ABOUT
-    // ============================================
 
     @FXML
     private void handleUserGuide() {
@@ -1352,46 +1380,14 @@ public class Pharaohmotors implements Initializable {
         alert.setContentText("""
             QUICK START GUIDE
             
-            1. DASHBOARD
-               • View system statistics and recent vehicles
-               • Quick access to all features
+            1. Click on a vehicle row in the table to select it
+            2. Then click ADD SERVICE RECORD to add service
+            3. Select service type from dropdown (16 options available)
+            4. Enter cost and description
+            5. Click OK to save
             
-            2. REGISTER VEHICLE
-               • Fill in vehicle and owner details
-               • Click REGISTER to save
-            
-            3. WORKSHOP
-               • Add service records for vehicles
-               • View service history with costs
-            
-            4. INSURANCE
-               • Add insurance policies
-               • Track expiring policies
-            
-            5. POLICE MODULE
-               • Report traffic violations
-               • Mark violations as paid
-            
-            6. CUSTOMER SUPPORT
-               • Submit queries about vehicles
-               • Track response status
-            
-            7. REPORTS
-               • Generate various reports
-               • Export to CSV format
-            
-            8. DEMO FEATURES
-               • ScrollPane with 35+ items
-               • Pagination with 5 pages
-            
-            TIPS:
-            • Click sidebar buttons for quick navigation
-            • Double-click vehicle to view history
-            • Right-click vehicle for context menu options
-            • Hover over elements for tooltips
+            Login: admin / admin123
             """);
-        alert.setResizable(true);
-        alert.getDialogPane().setPrefWidth(600);
         alert.showAndWait();
     }
 
@@ -1400,32 +1396,7 @@ public class Pharaohmotors implements Initializable {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("About");
         alert.setHeaderText("Vehicle Identification System");
-        alert.setContentText("""
-            Version: 2.0
-            Developed for: Object Oriented Programming II
-            Course Code: B/DIOP2210
-            
-            Developed by: Pharaoh Motors Team
-            Year: 2026
-            
-            Technologies Used:
-            • JavaFX 17 - Frontend
-            • PostgreSQL - Database
-            • JDBC - Database Connectivity
-            • MVC Architecture Pattern
-            
-            Features:
-            ✓ Vehicle Registration
-            ✓ Service History Tracking
-            ✓ Insurance Management
-            ✓ Violation Reporting
-            ✓ Customer Support
-            ✓ Report Generation
-            ✓ User Authentication
-            ✓ Role-Based Access
-            
-            © 2026 Pharaoh Motors. All rights reserved.
-            """);
+        alert.setContentText("Version 2.0\nDeveloped for OOP II\n© 2026 Pharaoh Motors");
         alert.showAndWait();
     }
 

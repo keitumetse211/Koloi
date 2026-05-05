@@ -399,9 +399,9 @@ public class DatabaseConnection {
                     "ON CONFLICT (username) DO NOTHING";
 
             String insertVehicles = "INSERT INTO vehicles (registration_number, make, model, year, owner_name, owner_email, owner_phone) VALUES " +
-                    "('ABC123', 'Toyota', 'Camry', 2020, 'John Doe', 'john@example.com', '+27 12 345 6789'), " +
-                    "('XYZ789', 'Honda', 'Civic', 2019, 'Jane Smith', 'jane@example.com', '+27 23 456 7890'), " +
-                    "('DEF456', 'Ford', 'Mustang', 2021, 'Bob Johnson', 'bob@example.com', '+27 34 567 8901') " +
+                    "('ABC123', 'Toyota', 'Camry', 2020, 'Neo Lesala', 'neo@gmail.com', '+27 12 345 6789'), " +
+                    "('XYZ789', 'Honda', 'Civic', 2019, 'Thabo Rapuleng', 'thabo@gmail.com', '+27 23 456 7890'), " +
+                    "('DEF456', 'Ford', 'Mustang', 2021, 'Palesa Ranko', 'palesa@gmail.com', '+27 34 567 8901') " +
                     "ON CONFLICT (registration_number) DO NOTHING";
 
             executeUpdate(insertUsers);
