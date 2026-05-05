@@ -29,7 +29,7 @@
                 <!-- Logo Section -->
                 <VBox alignment="CENTER" spacing="10" style="-fx-padding: 40 40 0 40;">
                     <Label style="-fx-font-size: 70px;" text="🚗" />
-                    <Label style="-fx-text-fill: #e94560; -fx-font-size: 28px; -fx-font-weight: bold; -fx-font-family: 'Arial Black';" text="PHARAOH MOTORS">
+                    <Label style="-fx-text-fill: #e94560; -fx-font-size: 28px; -fx-font-weight: bold; -fx-font-family: 'Arial Black';" text="PHARAOH COMPANY MOTORS">
                         <font><Font name="Arial Black" size="28" /></font>
                     </Label>
                     <Label style="-fx-text-fill: #ffffff; -fx-font-size: 14px;" text="Vehicle Identification System" />
